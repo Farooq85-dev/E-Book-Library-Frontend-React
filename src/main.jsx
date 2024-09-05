@@ -5,6 +5,7 @@ import { ThemeProvider } from "@material-tailwind/react";
 import App from "./App.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.scss";
+import { BookProvider } from "./Context/Book.context.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -21,7 +22,9 @@ createRoot(document.getElementById("root")).render(
         pauseOnHover
         theme="dark"
       />
-      <App />
+      <BookProvider>
+        <App />
+      </BookProvider>
     </ThemeProvider>
   </StrictMode>
 );
