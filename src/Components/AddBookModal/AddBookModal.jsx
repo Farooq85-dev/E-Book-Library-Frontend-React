@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import FormData from "form-data";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { UploaderComp } from "../Uploader/uplaoder";
 
 function AddBookModalComp({ open, handleOpen }) {
   const {
@@ -22,7 +23,9 @@ function AddBookModalComp({ open, handleOpen }) {
   } = useForm();
 
   const addBook = (bookData) => {
-    let { title, author, description, price, publishDate } = bookData;
+    let { title, author, description, price, publishDate, bookImage } =
+      bookData;
+    console.log(title, author, description, price, publishDate, bookImage[0]);
 
     let data = new FormData();
     data.append("title", title);
@@ -30,6 +33,7 @@ function AddBookModalComp({ open, handleOpen }) {
     data.append("description", description);
     data.append("price", price);
     data.append("publishDate", publishDate);
+    data.append("bookImage", bookImage[0]);
 
     let config = {
       method: "post",
@@ -158,6 +162,22 @@ function AddBookModalComp({ open, handleOpen }) {
                   {errors.publishDate && (
                     <Typography color="red" className="text-sm font-medium">
                       {errors.publishDate.message}
+                    </Typography>
+                  )}
+                </div>
+              </div>
+              <div className="w-full flex flex-col justify-start items-start gap-2">
+                <div className="w-full">
+                  <UploaderComp
+                    {...register("bookImage", {
+                      required: "Image is required.",
+                    })}
+                  />
+                </div>
+                <div>
+                  {errors.bookImage && (
+                    <Typography color="red" className="text-sm font-medium">
+                      {errors.bookImage.message}
                     </Typography>
                   )}
                 </div>

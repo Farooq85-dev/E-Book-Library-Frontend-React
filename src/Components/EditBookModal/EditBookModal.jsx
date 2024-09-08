@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import FormData from "form-data";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 function EditBookModal({
   open,
@@ -29,6 +30,8 @@ function EditBookModal({
     formState: { errors },
     reset,
   } = useForm();
+
+  const navigate = useNavigate();
 
   // Reset form values when modal opens with selected book data
   useEffect(() => {
@@ -81,6 +84,7 @@ function EditBookModal({
         toast.success("Your book has been updated successfully!");
         reset();
         handleOpen();
+        navigate("/library");
       })
       .catch((error) => {
         console.log(error);

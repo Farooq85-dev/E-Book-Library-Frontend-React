@@ -3,7 +3,7 @@ import { Input } from "@material-tailwind/react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 
 const InputComp = forwardRef(
-  ({ inputType, inputPlaceholder, inputValue, ...props }, ref) => {
+  ({ inputType, inputPlaceholder,inputOnChange, inputValue, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const toggleShowPassword = () => {
@@ -14,6 +14,7 @@ const InputComp = forwardRef(
       <div className="relative">
         <Input
           size="lg"
+          onChange={inputOnChange}
           value={inputValue}
           type={inputType === "password" && showPassword ? "text" : inputType}
           placeholder={inputPlaceholder}

@@ -23,7 +23,6 @@ const BookProvider = ({ children }) => {
 
       const response = await axios.request(config);
       setBooks(response.data);
-      console.log(response.data);
       setLoading(false);
     } catch (err) {
       setError(err);

@@ -35,11 +35,13 @@ function CardComp() {
     }
   }, [books]);
 
-  const deleteBook = (id) => {
+  const deleteBook = (id, imgId) => {
     let config = {
       method: "delete",
       maxBodyLength: Infinity,
-      url: `${import.meta.env.VITE_API_URL}/deleteBook/${id}`,
+      url: `${
+        import.meta.env.VITE_API_URL
+      }/deleteBook?bookId=${id}&BookImgId=${imgId}`,
       headers: {},
     };
 
@@ -59,15 +61,15 @@ function CardComp() {
     <div className="mx-auto max-w-screen-2xl mt-10">
       {loading ? (
         <div className="flex justify-center items-center h-screen">
-          <Spinner className="w-16 h-16 lg:h-32 lg:w-32" />
+          <Spinner className="w-16 h-16" />
         </div>
       ) : (
         <>
           <div className="booksCard w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {booksData.length === 0 ? (
               <Typography
-                variant="h5"
-                className="font-medium text-gray-900 transition-all duration-300"
+                variant="h3"
+                className="w-full font-medium text-gray-900 transition-all duration-300 "
               >
                 No Data Found!
               </Typography>
@@ -75,10 +77,10 @@ function CardComp() {
               booksData.map((book) => (
                 <div
                   key={book._id}
-                  className="flex flex-col items-start p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                  className="flex flex-col justify-between items-start p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 w-full"
                 >
                   <Avatar
-                    src="https://docs.material-tailwind.com/img/face-2.jpg"
+                    src={book.bookImage.secure_url}
                     alt="Book Cover"
                     variant="rounded"
                     className="w-full h-48 object-cover mb-4"
@@ -86,7 +88,7 @@ function CardComp() {
                   <div className="flex flex-col justify-between items-start w-full gap-1">
                     <Typography
                       variant="h3"
-                      className="font-semibold text-gray-900 mb-1"
+                      className="font-semibold text-gray-900 mb-1 break-words w-full"
                     >
                       {book.title}
                     </Typography>
@@ -126,7 +128,9 @@ function CardComp() {
                       <ButtonComp
                         title="Delete"
                         btnIcon={<MdOutlineDelete size={20} />}
-                        btnClick={() => deleteBook(book._id)}
+                        btnClick={() =>
+                          deleteBook(book._id, book.bookImage.public_id)
+                        }
                       />
                     </div>
                   </div>

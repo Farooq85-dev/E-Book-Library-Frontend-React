@@ -1,8 +1,10 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
+const flowbite = require("flowbite-react/tailwind");
 
 export default withMT({
   darkMode: "class",
   content: [
+    flowbite.content(),
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "path-to-your-node_modules/@material-tailwind/react/components/**/*.{js,ts,jsx,tsx}",
@@ -19,5 +21,5 @@ export default withMT({
     },
     extend: {},
   },
-  plugins: [],
+  plugins: [flowbite.plugin()],
 });
