@@ -10,6 +10,7 @@ const BookProvider = ({ children }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
 
   // Function to fetch books
   const fetchBooks = async () => {
@@ -17,12 +18,28 @@ const BookProvider = ({ children }) => {
       let config = {
         method: "get",
         maxBodyLength: Infinity,
-        url: `${import.meta.env.VITE_API_URL}/getBook`,
+        url: `${import.meta.env.VITE_API_URL}/getBook?page=${page}`,
         headers: {},
       };
 
       const response = await axios.request(config);
-      setBooks(response.data);
+
+      setBooks((prevBooks) => {
+        if (prevBooks.foundedBook && prevBooks.foundedBook.length > 0) {
+          const newBooks = response.data.foundedBook.filter(
+            (newBook) =>
+              !prevBooks.foundedBook.some(
+                (prevBook) => prevBook._id === newBook._id
+              )
+          );
+          return {
+            ...response.data,
+            foundedBook: [...prevBooks.foundedBook, ...newBooks],
+          };
+        } else {
+          return response.data;
+        }
+      });
       setLoading(false);
     } catch (err) {
       setError(err);
@@ -32,10 +49,10 @@ const BookProvider = ({ children }) => {
 
   useEffect(() => {
     fetchBooks();
-  }, []);
+  }, [page]);
 
   return (
-    <BookContext.Provider value={{ books, loading, error }}>
+    <BookContext.Provider value={{ books, loading, error, setPage }}>
       {children}
     </BookContext.Provider>
   );

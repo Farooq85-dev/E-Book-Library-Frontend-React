@@ -9,7 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function CardComp() {
-  const { books, loading } = useBookContext();
+  const { books, loading, setPage } = useBookContext();
   const [bookId, setBookId] = useState(null);
   const [booksData, setBooksData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -18,6 +18,12 @@ function CardComp() {
   const [selectedBookDescription, setSelectedBookDescription] = useState("");
   const [selectedBookPrice, setSelectedBookPrice] = useState("");
   const [selectedBookPublishDate, setSelectedBookPublishDate] = useState("");
+
+  useEffect(() => {
+    if (books.foundedBook && books.foundedBook.length > 0) {
+      setBooksData(books.foundedBook);
+    }
+  }, [books]);
 
   const handleOpen = (id, title, author, description, price, date) => {
     setOpen(!open);
@@ -29,11 +35,9 @@ function CardComp() {
     setSelectedBookPublishDate(date);
   };
 
-  useEffect(() => {
-    if (books.foundedBook && books.foundedBook.length > 0) {
-      setBooksData(books.foundedBook);
-    }
-  }, [books]);
+  const handlePage = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   const deleteBook = (id, imgId) => {
     let config = {
@@ -137,6 +141,13 @@ function CardComp() {
                 </div>
               ))
             )}
+          </div>
+          <div className="flex justify-center items-center w-full mt-10">
+            <ButtonComp
+              classes="text-center"
+              title="Load More"
+              btnClick={handlePage}
+            />
           </div>
         </>
       )}
