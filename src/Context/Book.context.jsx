@@ -11,6 +11,7 @@ const BookProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Function to fetch books
   const fetchBooks = async () => {
@@ -40,6 +41,7 @@ const BookProvider = ({ children }) => {
           return response.data;
         }
       });
+      setTotalPages(response.data.totalPages);
       setLoading(false);
     } catch (err) {
       setError(err);
@@ -52,7 +54,9 @@ const BookProvider = ({ children }) => {
   }, [page]);
 
   return (
-    <BookContext.Provider value={{ books, loading, error, setPage }}>
+    <BookContext.Provider
+      value={{ books, loading, error, setPage, totalPages, page }}
+    >
       {children}
     </BookContext.Provider>
   );

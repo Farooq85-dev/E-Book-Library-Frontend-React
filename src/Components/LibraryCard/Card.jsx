@@ -9,7 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function CardComp() {
-  const { books, loading, setPage } = useBookContext();
+  const { books, loading, setPage, totalPages, page } = useBookContext();
   const [bookId, setBookId] = useState(null);
   const [booksData, setBooksData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -146,6 +146,7 @@ function CardComp() {
             <ButtonComp
               classes="text-center"
               title="Load More"
+              btnDisable={page >= totalPages}
               btnClick={handlePage}
             />
           </div>
