@@ -6,14 +6,14 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import { SlMenu } from "react-icons/sl";
-import InputComp from "../Input/Input";
 import ButtonComp from "../Button/Button";
 import AddBookModalComp from "../AddBookModal/AddBookModal";
-import { useBookContext } from "../../Context/Book.context";
+import SettingsModalComp from "./../Settings/Settings";
 
 function NavbarComp() {
   const [openNav, setOpenNav] = useState(false);
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener(
@@ -23,6 +23,7 @@ function NavbarComp() {
   }, []);
 
   const handleOpen = () => setOpen(!open);
+  const handleSettingsOpen = () => setSettingsOpen(!settingsOpen);
 
   return (
     <Navbar className="mx-auto rounded-none px-4 py-2 lg:px-8 lg:py-4 bg-white shadow-md">
@@ -37,6 +38,7 @@ function NavbarComp() {
           </Typography>
           <div className="hidden lg:flex items-center gap-x-2">
             <ButtonComp title="Add Book" btnClick={handleOpen} />
+            <ButtonComp title="Settings" btnClick={handleSettingsOpen} />
           </div>
 
           <IconButton
@@ -55,6 +57,11 @@ function NavbarComp() {
               <ButtonComp
                 title="Add Book"
                 btnClick={handleOpen}
+                classes="mt-4 mb-4 sm:mt-0"
+              />
+              <ButtonComp
+                title="Settings"
+                btnClick={handleSettingsOpen}
                 classes="mt-4 sm:mt-0"
               />
             </div>
@@ -62,6 +69,10 @@ function NavbarComp() {
         </div>
       </Collapse>
       <AddBookModalComp open={open} handleOpen={handleOpen} />
+      <SettingsModalComp
+        settingsOpen={settingsOpen}
+        handleSettingsOpen={handleSettingsOpen}
+      />
     </Navbar>
   );
 }

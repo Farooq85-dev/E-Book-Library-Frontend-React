@@ -69,7 +69,7 @@ function AddBookModalComp({ open, handleOpen }) {
           unmount: { scale: 0.9, y: -100 },
         }}
       >
-        <DialogHeader>Its a simple modal.</DialogHeader>
+        <DialogHeader>Add Book</DialogHeader>
         <DialogBody>
           <form onSubmit={handleSubmit(addBook)}>
             <div className="flex flex-col justify-center items-center gap-6">

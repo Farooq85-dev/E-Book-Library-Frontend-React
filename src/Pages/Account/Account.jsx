@@ -60,6 +60,8 @@ function AccountPage() {
       });
   };
 
+  console.log(document.cookie);
+
   //Sign in user
   const onSubmitSignIn = async (data) => {
     let { userSigninEmail, userSigninPassword } = data;
