@@ -11,6 +11,7 @@ import InputComp from "../Input/Input";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
   const navigate = useNavigate();
@@ -22,22 +23,48 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
     reset,
   } = useForm();
 
+  const handleChangePassword = (passwordData) => {
+    const { oldPassword, newPassword } = passwordData;
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `${
+        import.meta.env.VITE_API_URL
+      }/changePassword?oldPassword=${oldPassword}&newPassword=${newPassword}`,
+      headers: {},
+      withCredentials: true,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        toast.success("Password Updated Successfully!");
+        reset();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Please Try Again!");
+      });
+  };
+
   const handleLogout = async () => {
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/logoutUser`,
-        {}, // No need to send body data for logout
-        {
-          withCredentials: true,  
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      navigate("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `${import.meta.env.VITE_API_URL}/logoutUser`,
+      headers: {},
+      withCredentials: true,
+    };
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -51,24 +78,47 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
     >
       <DialogHeader>Account Settings</DialogHeader>
       <DialogBody>
-        <form>
+        <form onSubmit={handleSubmit(handleChangePassword)}>
           <div className="flex flex-col justify-start items-start gap-6">
             <div className="w-full flex flex-col justify-start items-start gap-2">
               <div className="w-full">
                 <InputComp
                   inputType="text"
                   inputPlaceholder="Type Title."
-                  {...register("title", {
-                    required: "Title is required.",
+                  {...register("oldPassword", {
+                    required: "Old Password is required.",
                   })}
                 />
               </div>
               <div>
-                {errors.title && (
+                {errors.oldPassword && (
                   <Typography color="red" className="text-sm font-medium">
-                    {errors.title.message}
+                    {errors.oldPassword.message}
                   </Typography>
                 )}
+              </div>
+              <div className="w-full">
+                <InputComp
+                  inputType="text"
+                  inputPlaceholder="Type Title."
+                  {...register("newPassword", {
+                    required: "New Password is required.",
+                  })}
+                />
+              </div>
+              <div>
+                {errors.newPassword && (
+                  <Typography color="red" className="text-sm font-medium">
+                    {errors.newPassword.message}
+                  </Typography>
+                )}
+              </div>
+              <div>
+                <ButtonComp
+                  btnType="submit"
+                  title="Change Password"
+                  btnClick={handleChangePassword}
+                />
               </div>
             </div>
             <div className="flex justify-start items-start">
