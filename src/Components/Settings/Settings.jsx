@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
   Typography,
+  Spinner,
 } from "@material-tailwind/react";
 import ButtonComp from "../Button/Button";
 import InputComp from "../Input/Input";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
-  const navigate = useNavigate();
+  const [changing, setChanging] = useState(false);
+  const [loggingout, setLoggingout] = useState(false);
 
   const {
     register,
@@ -24,32 +25,34 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
   } = useForm();
 
   const handleChangePassword = (passwordData) => {
+    setChanging(true);
     const { oldPassword, newPassword } = passwordData;
-
-    let config = {
-      method: "post",
-      maxBodyLength: Infinity,
-      url: `${
-        import.meta.env.VITE_API_URL
-      }/changePassword?oldPassword=${oldPassword}&newPassword=${newPassword}`,
-      headers: {},
-      withCredentials: true,
-    };
+    const data = new FormData();
+    data.append("oldPassword", oldPassword);
+    data.append("newPassword", newPassword);
 
     axios
-      .request(config)
+      .post(`${import.meta.env.VITE_API_URL}/changePassword`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      })
       .then((response) => {
-        console.log(JSON.stringify(response.data));
-        toast.success("Password Updated Successfully!");
+        toast.success(response.data.message);
         reset();
+        handleSettingsOpen();
       })
       .catch((error) => {
-        console.log(error);
-        toast.error("Please Try Again!");
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setChanging(false);
       });
   };
 
   const handleLogout = async () => {
+    setLoggingout(true);
     let config = {
       method: "post",
       maxBodyLength: Infinity,
@@ -57,13 +60,19 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
       headers: {},
       withCredentials: true,
     };
+
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        toast.success(response.data.message);
+        reset();
+        handleSettingsOpen();
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setLoggingout(false);
       });
   };
 
@@ -76,15 +85,17 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
         unmount: { scale: 0.9, y: -100 },
       }}
     >
-      <DialogHeader>Account Settings</DialogHeader>
+      <DialogHeader className="text-4xl flex justify-center">
+        Account Settings
+      </DialogHeader>
       <DialogBody>
         <form onSubmit={handleSubmit(handleChangePassword)}>
           <div className="flex flex-col justify-start items-start gap-6">
             <div className="w-full flex flex-col justify-start items-start gap-2">
               <div className="w-full">
                 <InputComp
-                  inputType="text"
-                  inputPlaceholder="Type Title."
+                  inputType="password"
+                  inputPlaceholder="Old Password"
                   {...register("oldPassword", {
                     required: "Old Password is required.",
                   })}
@@ -99,8 +110,8 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
               </div>
               <div className="w-full">
                 <InputComp
-                  inputType="text"
-                  inputPlaceholder="Type Title."
+                  inputType="password"
+                  inputPlaceholder="New Password"
                   {...register("newPassword", {
                     required: "New Password is required.",
                   })}
@@ -115,14 +126,35 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
               </div>
               <div>
                 <ButtonComp
-                  btnType="submit"
-                  title="Change Password"
-                  btnClick={handleChangePassword}
+                  type="submit"
+                  title={
+                    changing ? (
+                      <>
+                        Changing
+                        <Spinner className="w-4 h-4" color="white" />
+                      </>
+                    ) : (
+                      "Change Password"
+                    )
+                  }
+                  btnClick={handleSubmit(handleChangePassword)}
                 />
               </div>
             </div>
             <div className="flex justify-start items-start">
-              <ButtonComp title="Logout" btnClick={handleLogout} />
+              <ButtonComp
+                title={
+                  loggingout ? (
+                    <>
+                      Loggingout
+                      <Spinner className="w-4 h-4" color="white" />
+                    </>
+                  ) : (
+                    "Logout"
+                  )
+                }
+                btnClick={handleLogout}
+              />
             </div>
           </div>
           <DialogFooter>

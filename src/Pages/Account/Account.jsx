@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Typography } from "@material-tailwind/react";
+import { Card, Typography, Spinner } from "@material-tailwind/react";
 import { useForm } from "react-hook-form";
 import InputComp from "../../Components/Input/Input";
 import ButtonComp from "../../Components/Button/Button";
@@ -7,10 +7,13 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { GrAssistListening } from "react-icons/gr";
 import { GrAttachment } from "react-icons/gr";
+import FormData from "form-data";
 import axios from "axios";
 
 function AccountPage() {
   const [type, setType] = useState("Sign up");
+  const [registering, setRegistering] = useState(false);
+  const [signing, setSigning] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -27,72 +30,69 @@ function AccountPage() {
   } = useForm();
 
   // Registering User
-  const onSubmitSignUp = async (data) => {
-    let { userName, userSignupEmail, userSignupPassword } = data;
+  const onSubmitSignUp = async (signupData) => {
+    setRegistering(true);
+    let { userName, userSignupEmail, userSignupPassword } = signupData;
 
-    let userSignupData = JSON.stringify({
-      name: userName,
-      email: userSignupEmail,
-      password: userSignupPassword,
-    });
+    let data = new FormData();
+    data.append("name", userName);
+    data.append("email", userSignupEmail);
+    data.append("password", userSignupPassword);
 
     let config = {
       method: "post",
       maxBodyLength: Infinity,
       url: `${import.meta.env.VITE_API_URL}/registerUser`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: userSignupData,
+      headers: {},
+      withCredentials: true,
+      data: data,
     };
 
     axios
       .request(config)
       .then((response) => {
-        toast.success("Login Successfully!");
-        console.log(JSON.stringify(response.data));
+        toast.success(response.data.message);
         reset();
         setType("Sign in");
       })
       .catch((error) => {
-        toast.error("Please try again!");
-        console.log(error);
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setRegistering(false);
       });
   };
 
-  let cook = document.cookie;
-  console.log(cook);
-
   //Sign in user
-  const onSubmitSignIn = async (data) => {
-    let { userSigninEmail, userSigninPassword } = data;
+  const onSubmitSignIn = async (signinData) => {
+    setSigning(true);
+    let { userSigninEmail, userSigninPassword } = signinData;
 
-    // Encode the email and password to handle special characters in the URL
-    const encodedEmail = encodeURIComponent(userSigninEmail);
-    const encodedPassword = encodeURIComponent(userSigninPassword);
+    let data = new FormData();
+    data.append("email", userSigninEmail);
+    data.append("password", userSigninPassword);
 
     let config = {
-      method: "get",
+      method: "post",
       maxBodyLength: Infinity,
-      url: `${
-        import.meta.env.VITE_API_URL
-      }/loginUser?email=${encodedEmail}&password=${encodedPassword}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      url: `${import.meta.env.VITE_API_URL}/loginUser`,
+      headers: {},
+      withCredentials: true,
+      data: data,
     };
 
     axios
       .request(config)
       .then((response) => {
-        toast.success("Login Successfully!");
-        console.log(JSON.stringify(response.data));
+        toast.success(response.data.message);
         reset();
         navigate("/library");
       })
       .catch((error) => {
-        toast.error("Please try again!");
-        console.error(error);
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setSigning(false);
       });
   };
 
@@ -188,7 +188,20 @@ function AccountPage() {
                     )}
                   </div>
                 </div>
-                <ButtonComp title="Sign Up" btnType="submit" classes="mt-6" />
+                <ButtonComp
+                  title={
+                    registering ? (
+                      <>
+                        <span>Registering</span>
+                        <Spinner className="w-4 h-4" color="white" />
+                      </>
+                    ) : (
+                      "Sign Up"
+                    )
+                  }
+                  btnType="submit"
+                  classes="mt-6"
+                />
                 <Typography className="mt-4 text-center text-certiary font-normal">
                   Already have an account?
                   <a
@@ -243,7 +256,20 @@ function AccountPage() {
                     )}
                   </div>
                 </div>
-                <ButtonComp title="Sign In" btnType="submit" classes="mt-6" />
+                <ButtonComp
+                  title={
+                    signing ? (
+                      <>
+                        <span>signing</span>
+                        <Spinner className="w-4 h-4" color="white" />
+                      </>
+                    ) : (
+                      "Sign In"
+                    )
+                  }
+                  btnType="submit"
+                  classes="mt-6"
+                />
                 <Typography className="mt-4 text-certiary text-center font-normal">
                   Don't have an account?
                   <a

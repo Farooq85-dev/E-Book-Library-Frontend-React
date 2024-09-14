@@ -5,6 +5,7 @@ import {
   DialogBody,
   DialogFooter,
   Typography,
+  Spinner,
 } from "@material-tailwind/react";
 import ButtonComp from "../Button/Button";
 import InputComp from "../Input/Input";
@@ -21,11 +22,12 @@ function AddBookModalComp({ open, handleOpen }) {
     formState: { errors },
     reset,
   } = useForm();
+  const [uploading, setUploading] = useState(false);
 
   const addBook = (bookData) => {
+    setUploading(true);
     let { title, author, description, price, publishDate, bookImage } =
       bookData;
-    console.log(title, author, description, price, publishDate, bookImage[0]);
 
     let data = new FormData();
     data.append("title", title);
@@ -42,6 +44,7 @@ function AddBookModalComp({ open, handleOpen }) {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: true,
       data: data,
     };
 
@@ -49,13 +52,16 @@ function AddBookModalComp({ open, handleOpen }) {
       .request(config)
       .then((response) => {
         console.log(JSON.stringify(response.data));
-        toast.success("You Book has been added succcessfully!");
+        toast.success(response.data.message);
         reset();
         handleOpen();
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Please try again!");
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setUploading(false);
       });
   };
 
@@ -69,7 +75,9 @@ function AddBookModalComp({ open, handleOpen }) {
           unmount: { scale: 0.9, y: -100 },
         }}
       >
-        <DialogHeader>Add Book</DialogHeader>
+        <DialogHeader className="text-4xl flex justify-center">
+          Add Book
+        </DialogHeader>
         <DialogBody>
           <form onSubmit={handleSubmit(addBook)}>
             <div className="flex flex-col justify-center items-center gap-6">
@@ -154,6 +162,7 @@ function AddBookModalComp({ open, handleOpen }) {
                       required: "Publish Date is required.",
                       pattern: {
                         value: /^\d{4}$/,
+                        message: "Please type valid year.",
                       },
                     })}
                   />
@@ -188,7 +197,16 @@ function AddBookModalComp({ open, handleOpen }) {
               <ButtonComp
                 classes="ml-1"
                 btnType="submit"
-                title="Save"
+                title={
+                  uploading ? (
+                    <>
+                      saving
+                      <Spinner className="w-4 h-4" color="white" />
+                    </>
+                  ) : (
+                    "Save"
+                  )
+                }
                 btnClick={handleSubmit(addBook)}
               />
             </DialogFooter>

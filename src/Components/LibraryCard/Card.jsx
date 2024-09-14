@@ -65,7 +65,7 @@ function CardComp() {
     <div className="mx-auto max-w-screen-2xl mt-10">
       {loading ? (
         <div className="flex justify-center items-center h-screen">
-          <Spinner className="w-16 h-16" />
+          <Spinner color="blue" className="w-16 h-16" />
         </div>
       ) : (
         <>
