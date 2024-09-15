@@ -260,7 +260,7 @@ function AccountPage() {
                   title={
                     signing ? (
                       <>
-                        <span>signing</span>
+                        <span>signingin</span>
                         <Spinner className="w-4 h-4" color="white" />
                       </>
                     ) : (

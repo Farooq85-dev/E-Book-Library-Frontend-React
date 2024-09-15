@@ -12,10 +12,13 @@ import InputComp from "../Input/Input";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
   const [changing, setChanging] = useState(false);
   const [loggingout, setLoggingout] = useState(false);
+  const [refreshSession, setRefreshSession] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -65,7 +68,7 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
       .request(config)
       .then((response) => {
         toast.success(response.data.message);
-        reset();
+        navigate("/");
         handleSettingsOpen();
       })
       .catch((error) => {
@@ -73,6 +76,30 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
       })
       .finally(() => {
         setLoggingout(false);
+      });
+  };
+
+  const handleRefreshSession = () => {
+    setRefreshSession(true);
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `${import.meta.env.VITE_API_URL}/regenerateTokens`,
+      headers: {},
+      withCredentials: true,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        handleSettingsOpen();
+        toast.success(response.data.message);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setRefreshSession(false);
       });
   };
 
@@ -141,7 +168,7 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
                 />
               </div>
             </div>
-            <div className="flex justify-start items-start">
+            <div className="flex justify-start items-start gap-2">
               <ButtonComp
                 title={
                   loggingout ? (
@@ -154,6 +181,19 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
                   )
                 }
                 btnClick={handleLogout}
+              />
+              <ButtonComp
+                title={
+                  refreshSession ? (
+                    <>
+                      Refreshing
+                      <Spinner className="w-4 h-4" color="white" />
+                    </>
+                  ) : (
+                    "Refresh Session"
+                  )
+                }
+                btnClick={handleRefreshSession}
               />
             </div>
           </div>
