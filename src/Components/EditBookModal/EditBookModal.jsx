@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
-  Typography,
+  Spinner,
 } from "@material-tailwind/react";
 import ButtonComp from "../Button/Button";
 import InputComp from "../Input/Input";
 import { useForm } from "react-hook-form";
-import FormData from "form-data";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -24,14 +23,10 @@ function EditBookModal({
   selectedBookPrice,
   selectedBookPublishDate,
 }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
   const navigate = useNavigate();
+  const [updating, setUpdating] = useState(false);
 
   // Reset form values when modal opens with selected book data
   useEffect(() => {
@@ -55,40 +50,39 @@ function EditBookModal({
   ]);
 
   const editBook = (editBookData) => {
-    // Conditionally set the form data
-    let data = new FormData();
-    data.append("title", editBookData.title || selectedBookTitle);
-    data.append("author", editBookData.author || selectedBookAuthor);
-    data.append(
-      "description",
-      editBookData.description || selectedBookDescription
-    );
-    data.append("price", editBookData.price || selectedBookPrice);
-    data.append(
-      "publishDate",
-      editBookData.publishDate || selectedBookPublishDate
-    );
+    setUpdating(true);
+    const data = {
+      title: editBookData.title || selectedBookTitle,
+      author: editBookData.author || selectedBookAuthor,
+      description: editBookData.description || selectedBookDescription,
+      price: editBookData.price || selectedBookPrice,
+      publishDate: editBookData.publishDate || selectedBookPublishDate,
+    };
 
     let config = {
       method: "put",
-      maxBodyLength: Infinity,
       url: `${import.meta.env.VITE_API_URL}/updateBook/${bookId}`,
-      headers: {},
+      headers: {
+        "Content-Type": "application/json",
+      },
       data: data,
     };
 
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
-        toast.success("Your book has been updated successfully!");
+        toast.error(
+          response?.data?.message || "Book data updated Successfully!"
+        );
         reset();
         handleOpen();
         navigate("/library");
       })
       .catch((error) => {
-        console.log(error);
-        toast.error("Please try again!");
+        toast.error(error?.response?.data?.message || "Please try again!");
+      })
+      .finally(() => {
+        setUpdating(false);
       });
   };
 
@@ -140,6 +134,7 @@ function EditBookModal({
                 {...register("publishDate", {
                   pattern: {
                     value: /^\d{4}$/,
+                    message: "Please type a valid year.",
                   },
                 })}
               />
@@ -149,9 +144,18 @@ function EditBookModal({
             <ButtonComp btnClick={handleOpen} classes="mr-1" title="Cancel" />
             <ButtonComp
               classes="ml-1"
+              btnDisable={updating ? "disable" : null}
               btnType="submit"
-              title="Save"
-              btnClick={handleSubmit(editBook)}
+              title={
+                updating ? (
+                  <>
+                    saving
+                    <Spinner className="w-4 h-4" color="white" />
+                  </>
+                ) : (
+                  "Save"
+                )
+              }
             />
           </DialogFooter>
         </form>

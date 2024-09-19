@@ -7,7 +7,7 @@ const useBookContext = () => useContext(BookContext);
 
 // Create a provider component
 const BookProvider = ({ children }) => {
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState({ foundedBook: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -15,36 +15,29 @@ const BookProvider = ({ children }) => {
 
   // Function to fetch books
   const fetchBooks = async () => {
+    setLoading(true); // Set loading to true at the start
     try {
-      let config = {
-        method: "get",
-        maxBodyLength: Infinity,
-        url: `${import.meta.env.VITE_API_URL}/getBook?page=${page}`,
-        headers: {},
-      };
-
-      const response = await axios.request(config);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/getBook?page=${page}`
+      );
 
       setBooks((prevBooks) => {
-        if (prevBooks.foundedBook && prevBooks.foundedBook.length > 0) {
-          const newBooks = response.data.foundedBook.filter(
-            (newBook) =>
-              !prevBooks.foundedBook.some(
-                (prevBook) => prevBook._id === newBook._id
-              )
-          );
-          return {
-            ...response.data,
-            foundedBook: [...prevBooks.foundedBook, ...newBooks],
-          };
-        } else {
-          return response.data;
-        }
+        const newBooks = response.data.foundedBook.filter(
+          (newBook) =>
+            !prevBooks.foundedBook.some(
+              (prevBook) => prevBook._id === newBook._id
+            )
+        );
+        return {
+          ...response.data,
+          foundedBook: [...prevBooks.foundedBook, ...newBooks],
+        };
       });
       setTotalPages(response.data.totalPages);
-      setLoading(false);
     } catch (err) {
       setError(err);
+      console.error("---- Error fetching books ----");
+    } finally {
       setLoading(false);
     }
   };

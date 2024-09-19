@@ -42,12 +42,14 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
         withCredentials: true,
       })
       .then((response) => {
-        toast.success(response.data.message);
+        toast.success(
+          response?.data?.message || "Password updated successfully!"
+        );
         reset();
         handleSettingsOpen();
       })
       .catch((error) => {
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Please try again!");
       })
       .finally(() => {
         setChanging(false);
@@ -93,10 +95,12 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
       .request(config)
       .then((response) => {
         handleSettingsOpen();
-        toast.success(response.data.message);
+        toast.success(
+          response?.data?.message || "Tokens refreshed successfully!"
+        );
       })
       .catch((error) => {
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Please try again!");
       })
       .finally(() => {
         setRefreshSession(false);
@@ -154,6 +158,7 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
               <div>
                 <ButtonComp
                   type="submit"
+                  btnDisable={changing ? "disable" : null}
                   title={
                     changing ? (
                       <>
@@ -170,6 +175,7 @@ function SettingsModalComp({ settingsOpen, handleSettingsOpen }) {
             </div>
             <div className="flex justify-start items-start gap-2">
               <ButtonComp
+                btnDisable={loggingout ? "disable" : null}
                 title={
                   loggingout ? (
                     <>

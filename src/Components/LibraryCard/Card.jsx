@@ -1,12 +1,12 @@
-import ButtonComp from "../Button/Button";
+import React, { useEffect, useState } from "react";
 import { Typography, Avatar, Spinner } from "@material-tailwind/react";
 import { MdOutlineDelete } from "react-icons/md";
 import { FiEdit2 } from "react-icons/fi";
 import { useBookContext } from "../../Context/Book.context";
-import { useEffect, useState } from "react";
 import EditBookModal from "../EditBookModal/EditBookModal.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
+import ButtonComp from "../Button/Button.jsx";
 
 function CardComp() {
   const { books, loading, setPage, totalPages, page } = useBookContext();
@@ -18,6 +18,7 @@ function CardComp() {
   const [selectedBookDescription, setSelectedBookDescription] = useState("");
   const [selectedBookPrice, setSelectedBookPrice] = useState("");
   const [selectedBookPublishDate, setSelectedBookPublishDate] = useState("");
+  const [deletingBooks, setDeletingBooks] = useState({});
 
   useEffect(() => {
     if (books.foundedBook && books.foundedBook.length > 0) {
@@ -40,6 +41,7 @@ function CardComp() {
   };
 
   const deleteBook = (id, imgId) => {
+    setDeletingBooks((prev) => ({ ...prev, [id]: true }));
     let config = {
       method: "delete",
       maxBodyLength: Infinity,
@@ -52,12 +54,16 @@ function CardComp() {
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
-        toast.success("Book deleted successfully!");
+        toast.success(response?.data?.message || "Please try again!");
+        setBooksData((prevBooks) =>
+          prevBooks.filter((book) => book._id !== id)
+        );
       })
       .catch((error) => {
-        console.log(error);
-        toast.error("Please try again!");
+        toast.error(error.response?.data?.message || "Please try again!");
+      })
+      .finally(() => {
+        setDeletingBooks((prev) => ({ ...prev, [id]: false }));
       });
   };
 
@@ -130,7 +136,16 @@ function CardComp() {
                         }
                       />
                       <ButtonComp
-                        title="Delete"
+                        title={
+                          deletingBooks[book._id] ? (
+                            <>
+                              Deleting
+                              <Spinner className="w-4 h-4" color="white" />
+                            </>
+                          ) : (
+                            "Delete"
+                          )
+                        }
                         btnIcon={<MdOutlineDelete size={20} />}
                         btnClick={() =>
                           deleteBook(book._id, book.bookImage.public_id)

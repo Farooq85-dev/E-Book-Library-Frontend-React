@@ -51,14 +51,14 @@ function AddBookModalComp({ open, handleOpen }) {
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
-        toast.success(response.data.message);
+        toast.success(
+          response?.data?.message || "Your Book Uploaded Successfully!"
+        );
         reset();
         handleOpen();
       })
       .catch((error) => {
-        console.log(error);
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Please try again!");
       })
       .finally(() => {
         setUploading(false);
@@ -197,6 +197,7 @@ function AddBookModalComp({ open, handleOpen }) {
               <ButtonComp
                 classes="ml-1"
                 btnType="submit"
+                btnDisable={uploading ? "disable" : null}
                 title={
                   uploading ? (
                     <>

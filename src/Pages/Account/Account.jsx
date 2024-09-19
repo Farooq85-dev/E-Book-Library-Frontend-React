@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, Typography, Spinner } from "@material-tailwind/react";
 import { useForm } from "react-hook-form";
 import InputComp from "../../Components/Input/Input";
@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { GrAssistListening } from "react-icons/gr";
 import { GrAttachment } from "react-icons/gr";
-import FormData from "form-data";
 import axios from "axios";
 
 function AccountPage() {
@@ -34,10 +33,11 @@ function AccountPage() {
     setRegistering(true);
     let { userName, userSignupEmail, userSignupPassword } = signupData;
 
-    let data = new FormData();
-    data.append("name", userName);
-    data.append("email", userSignupEmail);
-    data.append("password", userSignupPassword);
+    const data = {
+      name: userName,
+      email: userSignupEmail,
+      password: userSignupPassword,
+    };
 
     let config = {
       method: "post",
@@ -68,9 +68,10 @@ function AccountPage() {
     setSigning(true);
     let { userSigninEmail, userSigninPassword } = signinData;
 
-    let data = new FormData();
-    data.append("email", userSigninEmail);
-    data.append("password", userSigninPassword);
+    const data = {
+      email: userSigninEmail,
+      password: userSigninPassword,
+    };
 
     let config = {
       method: "post",
@@ -189,6 +190,7 @@ function AccountPage() {
                   </div>
                 </div>
                 <ButtonComp
+                  btnDisable={registering ? "disable" : null}
                   title={
                     registering ? (
                       <>
@@ -257,6 +259,7 @@ function AccountPage() {
                   </div>
                 </div>
                 <ButtonComp
+                  btnDisable={signing ? "disable" : null}
                   title={
                     signing ? (
                       <>
